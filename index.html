@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>咱家的运动计划</title>
+<style>
+  :root{
+    --bg:#fdf6ec; --card:#fff; --ink:#2b2620; --sub:#6b5d4f;
+    --dad:#2e6e8e; --dad-bg:#eaf3f8;
+    --mom:#b6546a; --mom-bg:#fbeef1;
+    --accent:#e8a23a; --ok:#2f7d4f; --gold:#e0a800;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg);color:var(--ink);font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;font-size:24px;line-height:1.6;-webkit-text-size-adjust:100%;}
+  header{text-align:center;padding:28px 16px 8px;}
+  header h1{font-size:46px;margin:0 0 6px;letter-spacing:2px;}
+  header p{font-size:26px;color:var(--sub);margin:0;}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  .home-main{max-width:1200px;margin:24px auto 0;padding:0 20px;text-align:center;}
+  .home-main .lead{font-size:30px;color:var(--sub);margin:8px 0 32px;}
+  .entry-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;}
+  @media (max-width:900px){.entry-grid{grid-template-columns:1fr;}}
+  .entry{display:block;width:100%;border:none;cursor:pointer;border-radius:26px;padding:56px 30px;font-family:inherit;color:var(--ink);box-shadow:0 10px 34px rgba(0,0,0,.10);transition:transform .12s ease, box-shadow .12s ease;text-align:center;}
+  .entry:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,0,0,.14);}
+  .entry:active{transform:translateY(0);}
+  .entry.dad{background:var(--dad-bg);border:4px solid var(--dad);}
+  .entry.mom{background:var(--mom-bg);border:4px solid var(--mom);}
+  .entry .emoji{font-size:72px;display:block;margin-bottom:8px;}
+  .entry .name{font-size:44px;font-weight:bold;display:block;margin-bottom:8px;}
+  .entry.dad .name{color:var(--dad);}
+  .entry.mom .name{color:var(--mom);}
+  .entry .desc{font-size:28px;color:var(--sub);}
+
+  .back-bar{max-width:1400px;margin:0 auto;padding:10px 20px 0;}
+  .back-btn{font-size:28px;font-family:inherit;font-weight:bold;padding:10px 26px;border-radius:14px;border:3px solid var(--sub);background:#fff;color:var(--ink);cursor:pointer;}
+  .back-btn:hover{background:#f3ede2;}
+
+  .list-main{max-width:1200px;margin:16px auto 0;padding:0 20px 20px;}
+  .list-sub{font-size:26px;color:var(--sub);text-align:center;margin:0 0 20px;}
+  .section-label{font-size:28px;font-weight:bold;color:var(--sub);margin:24px 0 12px;display:flex;align-items:center;gap:12px;}
+  .section-label::after{content:"";flex:1;height:2px;background:#e5d9c5;}
+  .plan-card{display:block;width:100%;border:3px solid #e0d3bb;border-radius:20px;background:#fff;padding:22px 26px;margin-bottom:16px;text-align:left;cursor:pointer;font-family:inherit;color:var(--ink);box-shadow:0 3px 12px rgba(0,0,0,.06);transition:transform .1s, box-shadow .1s;}
+  .plan-card:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(0,0,0,.1);}
+  .plan-card .pc-name{font-size:32px;font-weight:bold;display:block;margin-bottom:8px;}
+  .plan-card.dad .pc-name{color:var(--dad);}
+  .plan-card.mom .pc-name{color:var(--mom);}
+  .plan-card .pc-desc{font-size:24px;color:var(--sub);display:block;margin-bottom:12px;}
+  .plan-card .pc-meta{display:flex;flex-wrap:wrap;gap:10px;}
+  .plan-card.best{border:5px solid var(--gold);background:#fffaf0;box-shadow:0 8px 26px rgba(224,168,0,.22);}
+  .best-badge{display:inline-block;background:var(--gold);color:#fff;font-size:24px;font-weight:bold;padding:4px 18px;border-radius:999px;margin-bottom:12px;}
+  .chip{display:inline-block;font-size:24px;padding:4px 14px;border-radius:999px;line-height:1.4;}
+  .chip.time{background:#f2e7cf;color:#7a5a1e;font-weight:bold;}
+  .tag.effect{background:#e6e0ff;color:#5a46b0;font-weight:bold;}
+  .tag.freq{background:#e0f0ea;color:#1f6b4a;font-weight:bold;}
+
+  .wrap{display:grid;grid-template-columns:1fr;gap:20px;max-width:1400px;margin:0 auto;padding:16px 20px;}
+  .col{border-radius:22px;padding:24px 22px;box-shadow:0 6px 24px rgba(0,0,0,.06);}
+  .col.dad{background:var(--dad-bg);border:3px solid var(--dad);}
+  .col.mom{background:var(--mom-bg);border:3px solid var(--mom);}
+  .col h2{font-size:38px;margin:0 0 4px;text-align:center;}
+  .col.dad h2{color:var(--dad);}
+  .col.mom h2{color:var(--mom);}
+  .col .note{text-align:center;font-size:25px;color:var(--sub);margin:0 0 18px;}
+  .act{background:var(--card);border-radius:18px;padding:18px 20px;margin-bottom:18px;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+  .act .title{font-size:30px;font-weight:bold;margin-bottom:8px;}
+  .act.dad .title{color:var(--dad);}
+  .act.mom .title{color:var(--mom);}
+  .act .fig{text-align:center;margin:10px 0;}
+  .act .fig svg{max-width:100%;height:auto;}
+  .act .fig .cap{font-size:24px;color:var(--sub);margin-top:4px;}
+  .steps{margin:8px 0;padding-left:0;list-style:none;}
+  .steps li{font-size:24px;margin:4px 0;padding-left:30px;position:relative;}
+  .steps li::before{content:"▶";position:absolute;left:0;color:var(--accent);}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;}
+  .chip.ok{background:#e2f2e6;color:var(--ok);}
+  .chip.stop{background:#fbe3e3;color:#b23a3a;}
+  .speak-btn{font-size:26px;font-weight:bold;font-family:inherit;padding:10px 24px;border-radius:14px;border:3px solid #7a5a1e;background:#fff8e6;color:#6b4e12;cursor:pointer;margin:0 0 12px;display:inline-flex;align-items:center;gap:8px;}
+  .speak-btn:hover{background:#ffefc2;}
+  .speak-btn:active{transform:translateY(2px);}
+
+  .sfig{display:inline-block;vertical-align:middle;}
+  .sfig .line{fill:none;stroke:#3a322a;stroke-width:9;stroke-linecap:round;stroke-linejoin:round;}
+  .sfig .head{fill:#3a322a;}
+  .sfig .ground{stroke:#cfc4b0;stroke-width:5;}
+  .sfig .prop{stroke:#b3a58f;stroke-width:7;}
+  .sfig .dadc .line{stroke:var(--dad);}
+  .sfig .dadc .head{fill:var(--dad);}
+  .sfig .momc .line{stroke:var(--mom);}
+  .sfig .momc .head{fill:var(--mom);}
+
+  .bottom{max-width:1400px;margin:0 auto;padding:8px 20px 20px;text-align:center;}
+  .checkin-btn{font-size:44px;font-weight:bold;font-family:inherit;padding:20px 60px;border:none;border-radius:20px;background:var(--accent);color:#fff;cursor:pointer;box-shadow:0 6px 0 #c8861f, 0 10px 24px rgba(0,0,0,.15);transition:transform .08s ease, box-shadow .08s ease;}
+  .checkin-btn:active{transform:translateY(6px);box-shadow:0 0 0 #c8861f, 0 4px 12px rgba(0,0,0,.15);}
+  .checkin-btn.done{background:var(--ok);box-shadow:0 6px 0 #1f5c37, 0 10px 24px rgba(0,0,0,.15);}
+  #cheer{font-size:38px;color:var(--ok);font-weight:bold;margin-top:16px;min-height:56px;}
+  footer{text-align:center;padding:22px 16px 34px;}
+  footer .disc{display:inline-block;background:#fff3cd;border:3px solid #e0a800;color:#7a5a1e;font-size:28px;font-weight:bold;border-radius:16px;padding:14px 28px;max-width:1200px;}
+</style>
+</head>
+<body>
+
+<div id="view-home" class="view active">
+  <header><h1>👨‍👩 咱家的运动计划</h1><p>先选人 · 再看推荐计划 · 点进去照着做</p></header>
+  <main class="home-main">
+    <p class="lead">👇 先点一下，看谁的计划</p>
+    <div class="entry-grid">
+      <button class="entry dad" type="button" onclick="show('list-dad')"><span class="emoji">👨</span><span class="name">爸爸</span><span class="desc">腰肌劳损 · 只周末有空 · 不跳不搬重</span></button>
+      <button class="entry mom" type="button" onclick="show('list-mom')"><span class="emoji">👩</span><span class="name">妈妈</span><span class="desc">想瘦身 · 只能缓和 · 不跳不深蹲</span></button>
+    </div>
+  </main>
+</div>
+
+<div id="view-list-dad" class="view">
+  <header><h1>👨 爸爸的运动计划</h1></header>
+  <div class="back-bar"><button class="back-btn" type="button" onclick="show('home')">← 回首页</button></div>
+  <main class="list-main">
+    <p class="list-sub">按所需时间从短到长排 · 每张卡片都标了时间和效果</p>
+    <div class="section-label">🏆 最优方案 · 推荐先做这个</div>
+    <button class="plan-card dad best" type="button" onclick="show('dad-1')">
+      <span class="best-badge">🏆 最优方案</span><span class="pc-name">周末腰部舒缓拉伸</span>
+      <span class="pc-desc">动作最轻、最安全，腰肌劳损第一周就从这套开始。只做舒缓，不额外使劲。</span>
+      <span class="pc-meta"><span class="chip time">⏱ 15 分钟</span><span class="tag effect">缓解腰酸发僵</span><span class="tag freq">只周末做</span></span>
+    </button>
+    <div class="section-label">其他方案</div>
+    <button class="plan-card dad" type="button" onclick="show('dad-2')">
+      <span class="pc-name">周末舒缓 + 稳定巩固</span>
+      <span class="pc-desc">在舒缓基础上加一个温和的稳定动作。适合腰已经不疼、想练得结实一点的时候。</span>
+      <span class="pc-meta"><span class="chip time">⏱ 20 分钟</span><span class="tag effect">缓解 + 腰更扛得住</span><span class="tag freq">只周末做</span></span>
+    </button>
+    <button class="plan-card dad" type="button" onclick="show('dad-3')">
+      <span class="pc-name">睡前 3 分钟松一松</span>
+      <span class="pc-desc">躺床前做两下，让腰松快下来、睡得沉。哪天都能做，不占白天的空。</span>
+      <span class="pc-meta"><span class="chip time">⏱ 3 分钟</span><span class="tag effect">睡前放松助眠</span><span class="tag freq">天天睡前</span></span>
+    </button>
+  </main>
+</div>
+
+<div id="view-list-mom" class="view">
+  <header><h1>👩 妈妈的运动计划</h1></header>
+  <div class="back-bar"><button class="back-btn" type="button" onclick="show('home')">← 回首页</button></div>
+  <main class="list-main">
+    <p class="list-sub">按所需时间从短到长排 · 每张卡片都标了时间和效果</p>
+    <div class="section-label">🏆 最优方案 · 推荐先做这个</div>
+    <button class="plan-card mom best" type="button" onclick="show('mom-1')">
+      <span class="best-badge">🏆 最优方案</span><span class="pc-name">每日温和瘦身</span>
+      <span class="pc-desc">全身都活动到，还能让骨头受点力。不跳、蹲也只蹲一点点，护着膝盖。</span>
+      <span class="pc-meta"><span class="chip time">⏱ 约 20 分钟</span><span class="tag effect">全身活动 + 线条</span><span class="tag freq">天天做</span></span>
+    </button>
+    <div class="section-label">其他方案</div>
+    <button class="plan-card mom" type="button" onclick="show('mom-2')">
+      <span class="pc-name">家务间隙顺手做</span>
+      <span class="pc-desc">不另外腾时间，把几下塞进洗碗、等水开、晾衣服的空里，先养成习惯。</span>
+      <span class="pc-meta"><span class="chip time">⏱ 3 段 × 5 分钟</span><span class="tag effect">不占时间 · 养成习惯</span><span class="tag freq">天天顺手做</span></span>
+    </button>
+    <button class="plan-card mom" type="button" onclick="show('mom-3')">
+      <span class="pc-name">睡前床上放松</span>
+      <span class="pc-desc">躺床前在床上做两下，把腰背松开，帮着睡个好觉。</span>
+      <span class="pc-meta"><span class="chip time">⏱ 10 分钟</span><span class="tag effect">放松腰背助眠</span><span class="tag freq">天天睡前</span></span>
+    </button>
+  </main>
+</div>
+
+<!-- 爸爸方案1 -->
+<div id="view-dad-1" class="view">
+  <header><h1>周末腰部舒缓拉伸</h1></header>
+  <div class="back-bar"><button class="back-btn" type="button" onclick="show('list-dad')">← 返回计划列表</button></div>
+  <div class="wrap"><section class="col dad">
+    <h2>🏆 周末腰部舒缓拉伸</h2>
+    <p class="note">⏱ 15 分钟 · 效果：缓解腰酸发僵 · 只周六周日做 · 站着或跪着 · 不跳不搬重</p>
+
+    <div class="act dad">
+      <div class="title">① 叉着腰慢慢往后仰</div>
+      <div class="fig"><svg class="sfig" width="180" height="180" viewBox="0 0 180 180" role="img" aria-label="叉腰后仰"><g class="dadc"><g><animateTransform attributeName="transform" type="rotate" values="0 92 120;-7 92 120;0 92 120" dur="2.4s" repeatCount="indefinite"/><circle class="head" cx="96" cy="38" r="16"/><line class="line" x1="93" y1="54" x2="92" y2="120"/><line class="line" x1="93" y1="66" x2="72" y2="96"/><line class="line" x1="93" y1="66" x2="114" y2="92"/></g><line class="line" x1="92" y1="120" x2="78" y2="158"/><line class="line" x1="92" y1="120" x2="106" y2="158"/></g></svg><div class="cap">▲ 手叉腰、手肘朝外，上身慢慢往后仰</div></div>
+      <ul class="steps"><li>站直，两脚分开跟肩一样宽</li><li>两手叉在后腰上，手掌托住腰</li><li>慢慢往后仰一点点，数 3 下，再回正</li></ul>
+      <div class="meta"><span class="chip time">⏱ 做 8 下</span><span class="chip ok">✔ 腰被轻轻撑开就算对</span><span class="chip stop">✖ 腿发麻、腰里扎一下，马上停</span></div>
+    </div>
+
+    <div class="act dad">
+      <div class="title">② 像猫一样弓背、再塌腰</div>
+      <div class="fig"><svg class="sfig" width="200" height="170" viewBox="0 0 200 170" role="img" aria-label="猫式弓背塌腰"><g class="dadc"><line class="line ground" x1="20" y1="148" x2="180" y2="148"/><g><animateTransform attributeName="transform" type="rotate" values="0 40 62;-18 40 62;0 40 62;18 40 62;0 40 62" dur="2.4s" repeatCount="indefinite"/><circle class="head" cx="40" cy="62" r="15"/></g><line class="line" x1="55" y1="62" x2="100" y2="62"><animateTransform attributeName="transform" type="rotate" values="0 55 62;18 55 62;0 55 62;-14 55 62;0 55 62" dur="2.4s" repeatCount="indefinite"/></line><line class="line" x1="100" y1="62" x2="145" y2="62"><animateTransform attributeName="transform" type="rotate" values="0 145 62;18 145 62;0 145 62;-14 145 62;0 145 62" dur="2.4s" repeatCount="indefinite"/></line><line class="line" x1="60" y1="62" x2="58" y2="145"/><line class="line" x1="140" y1="62" x2="128" y2="108"/><line class="line" x1="128" y1="108" x2="132" y2="145"/></g></svg><div class="cap">▲ 手撑地、膝盖跪地，弓背低头再塌腰抬头</div></div>
+      <ul class="steps"><li>跪在床上，两手撑住，像四条腿的动物</li><li>慢慢把背弓起来，低头看自己肚子</li><li>再慢慢把腰塌下去，抬头往前看</li></ul>
+      <div class="meta"><span class="chip time">⏱ 一弓一塌算 1 下，做 10 下 × 2 轮</span><span class="chip ok">✔ 后腰一节节松开、发热就算对</span><span class="chip stop">✖ 塌腰时腰里"扎"一下，就只做弓背</span></div>
+    </div>
+
+    <div class="act dad">
+      <div class="title">③ 手脚对着抬</div>
+      <div class="fig"><svg class="sfig" width="200" height="170" viewBox="0 0 200 170" role="img" aria-label="手脚对抬"><g class="dadc"><line class="line ground" x1="20" y1="148" x2="180" y2="148"/><circle class="head" cx="40" cy="58" r="14"/><line class="line" x1="56" y1="58" x2="138" y2="58"/><line class="line" x1="56" y1="58" x2="22" y2="58"><animateTransform attributeName="transform" type="translate" values="0 0;-6 0;0 0" dur="2.4s" repeatCount="indefinite"/></line><line class="line" x1="72" y1="58" x2="66" y2="140"/><line class="line" x1="138" y1="58" x2="176" y2="58"><animateTransform attributeName="transform" type="translate" values="0 0;6 0;0 0" dur="2.4s" repeatCount="indefinite"/></line><line class="line" x1="124" y1="58" x2="112" y2="108"/><line class="line" x1="112" y1="108" x2="122" y2="140"/></g></svg><div class="cap">▲ 右手往前伸、左腿往后伸，另一手一脚撑地</div></div>
+      <ul class="steps"><li>跪撑着，摆好</li><li>右手往前伸，同时左腿往后伸，停 2 下</li><li>慢慢收回，换左手和右腿</li></ul>
+      <div class="meta"><span class="chip time">⏱ 左右各 6 下 × 2 轮</span><span class="chip ok">✔ 身子稳、不打晃就算对</span><span class="chip stop">✖ 腰塌、身子乱晃，就先只抬手</span></div>
+    </div>
+
+    <div class="act dad">
+      <div class="title">④ 跪着往前趴，屁股坐脚跟上</div>
+      <div class="fig"><svg class="sfig" width="200" height="160" viewBox="0 0 200 160" role="img" aria-label="跪趴放松"><g class="dadc"><line class="line ground" x1="20" y1="132" x2="180" y2="132"/><circle class="head" cx="58" cy="96" r="13"/><line class="line" x1="72" y1="94" x2="120" y2="66"/><line class="line" x1="72" y1="94" x2="24" y2="100"/><line class="line" x1="120" y1="66" x2="128" y2="100"/><line class="line" x1="128" y1="100" x2="128" y2="130"/></g></svg><div class="cap">▲ 屁股坐脚跟上，身子往前趴、手往前够</div></div>
+      <ul class="steps"><li>跪好，膝盖分开一点</li><li>屁股往后坐到脚后跟上</li><li>身子往前趴，手往前够，额头挨着床</li></ul>
+      <div class="meta"><span class="chip time">⏱ 停住默数 30 下 × 2 轮</span><span class="chip ok">✔ 后腰被轻轻拉开就算对</span><span class="chip stop">✖ 膝盖压得疼，就垫条毛巾</span></div>
+    </div>
+  </section></div>
+</div>
+
+<!-- 爸爸方案2 -->
+<div id="view-dad-2" class="view">
+  <header><h1>周末舒缓 + 稳定巩固</h1></header>
+  <div class="back-bar"><button class="back-btn" type="button" onclick="show('list-dad')">← 返回计划列表</button></div>
+  <div class="wrap"><section class="col dad">
+    <h2>周末舒缓 + 稳定巩固</h2>
+    <p class="note">⏱ 20 分钟 · 效果：缓解酸胀 + 让腰更扛得住 · 只周末做 · 不跳不搬重 · 建议腰不疼了再练这套</p>
+
+    <div class="act dad">
+      <div class="title">① 叉着腰慢慢往后仰</div>
+      <div class="fig"><svg class="sfig" width="180" height="180" viewBox="0 0 180 180" role="img" aria-label="叉腰后仰"><g class="dadc"><g><animateTransform attributeName="transform" type="rotate" values="0 92 120;-7 92 120;0 92 120" dur="2.4s" repeatCount="indefinite"/><circle class="head" cx="96" cy="38" r="16"/><line class="line" x1="93" y1="54" x2="92" y2="120"/><line class="line" x1="93" y1="66" x2="72" y2="96"/><line class="line" x1="93" y1="66" x2="114" y2="92"/></g><line class="line" x1="92" y1="120" x2="78" y2="158"/><line class="line" x1="92" y1="120" x2="106" y2="158"/></g></svg><div class="cap">▲ 手叉腰、手肘朝外，上身慢慢往后仰</div></div>
+      <ul class="steps"><li>站直，两脚分开跟肩一样宽</li><li>两手叉在后腰上，手掌托住腰</li><li>慢慢往后仰一点点，数 3 下，再回正</li></ul>
+      <div class="meta"><span class="chip time">⏱ 做 8 下</span><span class="chip ok">✔ 腰被轻轻撑开就算对</span><span class="chip stop">✖ 腿发麻、腰里扎一下，马上停</span></div>
+    </div>
+
+    <div class="act dad">
+      <div class="title">② 像猫一样弓背、再塌腰</div>
+      <div class="fig"><svg class="sfig" width="200" height="170" viewBox="0 0 200 170" role="img" aria-label="猫式弓背塌腰"><g class="dadc"><line class="line ground" x1="20" y1="148" x2="180" y2="148"/><g><animateTransform attributeName="transform" type="rotate" values="0 40 62;-18 40 62;0 40 62;18 40 62;0 40 62" dur="2.4s" repeatCount="indefinite"/><circle class="head" cx="40" cy="62" r="15"/></g><line class="line" x1="55" y1="62" x2="100" y2="62"><animateTransform attributeName="transform" type="rotate" values="0 55 62;18 55 62;0 55 62;-14 55 62;0 55 62" dur="2.4s" repeatCount="indefinite"/></line><line class="line" x1="100" y1="62" x2="145" y2="62"><animateTransform attributeName="transform" type="rotate" values="0 145 62;18 145 62;0 145 62;-14 145 62;0 145 62" dur="2.4s" repeatCount="indefinite"/></line><line class="line" x1="60" y1="62" x2="58" y2="145"/><line class="line" x1="140" y1="62" x2="128" y2="108"/><line class="line" x1="128" y1="108" x2="132" y2="145"/></g></svg><div class="cap">▲ 手撑地、膝盖跪地，弓背低头再塌腰抬头</div></div>
+      <ul class="steps"><li>跪在床上，两手撑住，像四条腿的动物</li><li>慢慢把背弓起来，低头看自己肚子</li><li>再慢慢把腰塌下去，抬头往前看</li></ul>
+      <div class="meta"><span class="chip time">⏱ 做 10 下 × 2 轮</span><span class="chip ok">✔ 后腰发热不刺痛就算对</span><span class="chip stop">✖ 腰里"扎"一下，就只做弓背</span></div>
+    </div>
+
+    <div class="act dad">
+      <div class="title">③ 手脚对着抬</div>
+      <div class="fig"><svg class="sfig" width="200" height="170" viewBox="0 0 200 170" role="img" aria-label="手脚对抬"><g class="dadc"><line class="line ground" x1="20" y1="148" x2="180" y2="148"/><circle class="head" cx="40" cy="58" r="14"/><line class="line" x1="56" y1="58" x2="138" y2="58"/><line class="line" x1="56" y1="58" x2="22" y2="58"><animateTransform attributeName="transform" type="translate" values="0 0;-6 0;0 0" dur="2.4s" repeatCount="indefinite"/></line><line class="line" x1="72" y1="58" x2="66" y2="140"/><line class="line" x1="138" y1="58" x2="176" y2="58"><animateTransform attributeName="transform" type="translate" values="0 0;6 0;0 0" dur="2.4s" repeatCount="indefinite"/></line><line class="line" x1="124" y1="58" x2="112" y2="108"/><line class="line" x1="112" y1="108" x2="122" y2="140"/></g></svg><div class="cap">▲ 右手往前伸、左腿往后伸，另一手一脚撑地</div></div>
+      <ul class="steps"><li>跪撑着，摆好</li><li>右手往前伸，同时左腿往后伸，停 2 下</li><li>慢慢收回，换左手和右腿</li></ul>
+      <div class="meta"><span class="chip time">⏱ 左右各 8 下 × 2 轮</span><span class="chip ok">✔ 身子稳、不打晃就算对</span><span class="chip stop">✖ 腰塌、身子乱晃，就抬低一点</span></div>
+    </div>
+
+    <div class="act dad">
+      <div class="title">④ 背靠墙，像坐张没有的凳子</div>
+      <div class="fig"><svg class="sfig" width="220" height="200" viewBox="0 0 220 200" role="img" aria-label="靠墙静蹲简化版"><g class="dadc"><rect class="line prop" x="4" y="10" width="14" height="180" rx="4" fill="none"/><g><animateTransform attributeName="transform" type="translate" values="0 0;0 -8;0 0" dur="2.4s" repeatCount="indefinite"/><circle class="head" cx="120" cy="40" r="16"/><line class="line" x1="120" y1="56" x2="120" y2="116"/><line class="line" x1="120" y1="72" x2="94" y2="96"/><line class="line" x1="120" y1="72" x2="146" y2="96"/><line class="line" x1="120" y1="116" x2="98" y2="150"/><line class="line" x1="120" y1="116" x2="142" y2="150"/></g></g></svg><div class="cap">▲ 背贴墙，只蹲一点点，不是蹲到底</div></div>
+      <ul class="steps"><li>背和后脑勺贴墙站，脚往前迈一小步</li><li>背贴着墙，往下滑一点点，像要坐张看不见的凳子</li><li>停几秒，再慢慢滑回来站直</li></ul>
+      <div class="meta"><span class="chip time">⏱ 做 8 下 × 2 轮</span><span class="chip ok">✔ 大腿前面发热，膝盖不疼就算对</span><span class="chip stop">✖ 膝盖疼，就蹲得再浅一点</span></div>
+    </div>
+
+    <div class="act dad">
+      <div class="title">⑤ 跪着往前趴，屁股坐脚跟上</div>
+      <div class="fig"><svg class="sfig" width="200" height="160" viewBox="0 0 200 160" role="img" aria-label="跪趴放松"><g class="dadc"><line class="line ground" x1="20" y1="132" x2="180" y2="132"/><circle class="head" cx="58" cy="96" r="13"/><line class="line" x1="72" y1="94" x2="120" y2="66"/><line class="line" x1="72" y1="94" x2="24" y2="100"/><line class="line" x1="120" y1="66" x2="128" y2="100"/><line class="line" x1="128" y1="100" x2="128" y2="130"/></g></svg><div class="cap">▲ 屁股坐脚跟上，身子往前趴、手往前够</div></div>
+      <ul class="steps"><li>跪好，屁股坐脚跟上</li><li>身子往前趴，手往前够，额头挨着床</li><li>停着慢慢喘气</li></ul>
+      <div class="meta"><span class="chip time">⏱ 停住默数 30 下 × 2 轮</span><span class="chip ok">✔ 后腰被轻轻拉开就算对</span><span class="chip stop">✖ 膝盖压得疼，就垫条毛巾</span></div>
+    </div>
+  </section></div>
+</div>
+
+<!-- 爸爸方案3 -->
+<div id="view-dad-3" class="view">
+  <header><h1>睡前 3 分钟松一松</h1></header>
+  <div class="back-bar"><button class="back-btn" type="button" onclick="show('list-dad')">← 返回计划列表</button></div>
+  <div class="wrap"><section class="col dad">
+    <h2>睡前 3 分钟松一松</h2>
+    <p class="note">⏱ 3 分钟 · 效果：睡前放松助眠 · 天天睡前 · 在床上跪着做</p>
+
+    <div class="act dad">
+      <div class="title">① 像猫一样弓背、再塌腰</div>
+      <div class="fig"><svg class="sfig" width="200" height="170" viewBox="0 0 200 170" role="img" aria-label="猫式弓背塌腰"><g class="dadc"><line class="line ground" x1="20" y1="148" x2="180" y2="148"/><g><animateTransform attributeName="transform" type="rotate" values="0 40 62;-18 40 62;0 40 62;18 40 62;0 40 62" dur="2.4s" repeatCount="indefinite"/><circle class="head" cx="40" cy="62" r="15"/></g><line class="line" x1="55" y1="62" x2="100" y2="62"><animateTransform attributeName="transform" type="rotate" values="0 55 62;18 55 62;0 55 62;-14 55 62;0 55 62" dur="2.4s" repeatCount="indefinite"/></line><line class="line" x1="100" y1="62" x2="145" y2="62"><animateTransform attributeName="transform" type="rotate" values="0 145 62;18 145 62;0 145 62;-14 145 62;0 145 62" dur="2.4s" repeatCount="indefinite"/></line><line class="line" x1="60" y1="62" x2="58" y2="145"/><line class="line" x1="140" y1="62" x2="128" y2="108"/><line class="line" x1="128" y1="108" x2="132" y2="145"/></g></svg><div class="cap">▲ 手撑地、膝盖跪地，弓背低头再塌腰抬头</div></div>
+      <ul class="steps"><li>跪在床上，两手撑住</li><li>慢慢把背弓起来，再慢慢塌下去</li><li>来回慢慢做，别着急</li></ul>
+      <div class="meta"><span class="chip time">⏱ 做 10 下，慢慢来</span><span class="chip ok">✔ 后腰发热不刺痛就算对</span><span class="chip stop">✖ 腰里"扎"一下，就只做弓背</span></div>
+    </div>
+
+    <div class="act dad">
+      <div class="title">② 跪着往前趴，屁股坐脚跟上</div>
+      <div class="fig"><svg class="sfig" width="200" height="160" viewBox="0 0 200 160" role="img" aria-label="跪趴放松"><g class="dadc"><line class="line ground" x1="20" y1="132" x2="180" y2="132"/><circle class="head" cx="58" cy="96" r="13"/><line class="line" x1="72" y1="94" x2="120" y2="66"/><line class="line" x1="72" y1="94" x2="24" y2="100"/><line class="line" x1="120" y1="66" x2="128" y2="100"/><line class="line" x1="128" y1="100" x2="128" y2="130"/></g></svg><div class="cap">▲ 屁股坐脚跟上，身子往前趴、手往前够</div></div>
+      <ul class="steps"><li>跪好，屁股坐脚跟上</li><li>身子往前趴，手往前够，额头挨着床</li><li>停着，慢慢喘气</li></ul>
+      <div class="meta"><span class="chip time">⏱ 停住默数 30 下 × 2 轮</span><span class="chip ok">✔ 后腰被轻轻拉开就算对</span><span class="chip stop">✖ 膝盖压得疼，就垫条毛巾</span></div>
+    </div>
+  </section></div>
+</div>
+
+<!-- 妈妈方案1 -->
+<div id="view-mom-1" class="view">
+  <header><h1>每日温和瘦身</h1></header>
+  <div class="back-bar"><button class="back-btn" type="button" onclick="show('list-mom')">← 返回计划列表</button></div>
+  <div class="wrap"><section class="col mom">
+    <h2>🏆 每日温和瘦身</h2>
+    <p class="note">⏱ 约 20 分钟 · 效果：全身活动 + 线条 · 天天做 · 都站着 · 不跳 · 蹲只蹲一点点 · 不用一次做完全部</p>
+
+    <div class="act mom">
+      <div class="title">① 甩开胳膊原地踏步</div>
+      <div class="fig"><svg class="sfig" width="180" height="180" viewBox="0 0 180 180" role="img" aria-label="原地踏步"><g class="momc"><line class="line ground" x1="50" y1="156" x2="130" y2="156"/><circle class="head" cx="90" cy="36" r="16"/><line class="line" x1="90" y1="52" x2="90" y2="112"/><line class="line" x1="90" y1="70" x2="64" y2="94"><animateTransform attributeName="transform" type="rotate" values="0 90 70;30 90 70;0 90 70" dur="1.4s" repeatCount="indefinite"/></line><line class="line" x1="90" y1="70" x2="116" y2="94"><animateTransform attributeName="transform" type="rotate" values="0 90 70;-30 90 70;0 90 70" dur="1.4s" repeatCount="indefinite"/></line><line class="line" x1="90" y1="112" x2="70" y2="152"><animateTransform attributeName="transform" type="rotate" values="0 90 112;26 90 112;0 90 112" dur="1.4s" repeatCount="indefinite"/></line><line class="line" x1="90" y1="112" x2="110" y2="152"/></g></svg><div class="cap">▲ 原地踏，胳膊甩开，别跑、别离地</div></div>
+      <ul class="steps"><li>原地抬腿踏步，膝盖别抬太高</li><li>胳膊跟着甩开，像在路上走</li><li>脚落地要轻，脚掌整个踩下去</li></ul>
+      <div class="meta"><span class="chip time">⏱ 连着踏 3 分钟</span><span class="chip ok">✔ 身上发热、还能搭话就算对</span><span class="chip stop">✖ 喘得说不出整句话，就慢下来</span></div>
+    </div>
+
+    <div class="act mom">
+      <div class="title">② 手扶着墙做俯卧撑</div>
+      <div class="fig"><svg class="sfig" width="200" height="180" viewBox="0 0 200 180" role="img" aria-label="扶墙俯卧撑"><g class="momc"><rect class="line prop" x="6" y="20" width="12" height="150" rx="4" fill="none"/><line class="line ground" x1="10" y1="170" x2="180" y2="170"/><circle class="head" cx="72" cy="42" r="14"/><line class="line" x1="80" y1="56" x2="98" y2="132"/><line class="line" x1="80" y1="66" x2="20" y2="66"/><line class="line" x1="98" y1="132" x2="90" y2="168"/><line class="line" x1="98" y1="132" x2="108" y2="168"/></g></svg><div class="cap">▲ 身子斜着朝墙，两手推墙，不是趴地上</div></div>
+      <ul class="steps"><li>面朝墙站，往后退一步</li><li>两手扶墙，跟肩一样高</li><li>胳膊慢慢弯，身子凑过去，再推回来</li></ul>
+      <div class="meta"><span class="chip time">⏱ 做 12 下 × 3 轮</span><span class="chip ok">✔ 胳膊和胸口发热就算对</span><span class="chip stop">✖ 手腕疼，就站近一点、轻松点</span></div>
+    </div>
+
+    <div class="act mom">
+      <div class="title">③ 踮脚尖</div>
+      <div class="fig"><svg class="sfig" width="180" height="180" viewBox="0 0 180 180" role="img" aria-label="踮脚尖"><g class="momc"><rect class="line prop" x="8" y="20" width="12" height="140" rx="4" fill="none"/><line class="line ground" x1="40" y1="156" x2="160" y2="156"/><g><animateTransform attributeName="transform" type="translate" values="0 0;0 -12;0 0" dur="2.4s" repeatCount="indefinite"/><circle class="head" cx="110" cy="40" r="15"/><line class="line" x1="110" y1="56" x2="110" y2="116"/><line class="line" x1="110" y1="68" x2="30" y2="92"/><line class="line" x1="110" y1="68" x2="132" y2="92"/><line class="line" x1="110" y1="116" x2="102" y2="150"/><line class="line" x1="110" y1="116" x2="118" y2="150"/><line class="line" x1="102" y1="150" x2="120" y2="152"/><line class="line" x1="118" y1="150" x2="134" y2="152"/></g></g></svg><div class="cap">▲ 手扶椅背，脚后跟抬起来再慢慢落</div></div>
+      <ul class="steps"><li>手扶椅背或灶台边站好</li><li>脚后跟慢慢抬起来，踮到最高停一下</li><li>再慢慢落下，心里数 3 下才落地</li></ul>
+      <div class="meta"><span class="chip time">⏱ 做 15 下 × 3 轮</span><span class="chip ok">✔ 小腿肚子发酸就算对</span><span class="chip stop">✖ 站不稳、脚踝疼，就扶牢停下</span></div>
+    </div>
+
+    <div class="act mom">
+      <div class="title">④ 扶着椅子，腿往后抬</div>
+      <div class="fig"><svg class="sfig" width="200" height="180" viewBox="0 0 200 180" role="img" aria-label="站立后抬腿"><g class="momc"><rect class="line prop" x="8" y="20" width="12" height="140" rx="4" fill="none"/><line class="line ground" x1="30" y1="160" x2="190" y2="160"/><circle class="head" cx="150" cy="38" r="15"/><line class="line" x1="150" y1="54" x2="150" y2="118"/><line class="line" x1="150" y1="66" x2="34" y2="92"/><line class="line" x1="150" y1="66" x2="42" y2="104"/><line class="line" x1="150" y1="118" x2="142" y2="158"/><line class="line" x1="150" y1="118" x2="178" y2="140"><animateTransform attributeName="transform" type="rotate" values="0 150 118;22 150 118;0 150 118" dur="2.4s" repeatCount="indefinite"/></line></g></svg><div class="cap">▲ 两手扶椅背，腿往后抬，屁股上有劲就停</div></div>
+      <ul class="steps"><li>两手扶椅背站直</li><li>右腿伸直往后抬，数 2 下，慢慢放下</li><li>做完一边，再换另一边</li></ul>
+      <div class="meta"><span class="chip time">⏱ 左右各 12 下 × 2 轮</span><span class="chip ok">✔ 屁股上发酸就算对</span><span class="chip stop">✖ 后腰往下塌，就抬低一点</span></div>
+    </div>
+
+    <div class="act mom">
+      <div class="title">⑤ 扶着椅子，腿往旁边抬</div>
+      <div class="fig"><svg class="sfig" width="200" height="180" viewBox="0 0 200 180" role="img" aria-label="侧抬腿"><g class="momc"><rect class="line prop" x="8" y="20" width="12" height="140" rx="4" fill="none"/><line class="line ground" x1="50" y1="160" x2="170" y2="160"/><circle class="head" cx="100" cy="36" r="15"/><line class="line" x1="100" y1="52" x2="100" y2="118"/><line class="line" x1="100" y1="66" x2="30" y2="92"/><line class="line" x1="100" y1="118" x2="100" y2="158"/><line class="line" x1="100" y1="118" x2="128" y2="140"><animateTransform attributeName="transform" type="rotate" values="0 100 118;18 100 118;0 100 118" dur="2.4s" repeatCount="indefinite"/></line></g></svg><div class="cap">▲ 正面站，一条腿往旁边抬，脚尖朝前</div></div>
+      <ul class="steps"><li>两手扶椅背站直</li><li>右腿伸直往旁边抬，脚尖朝前</li><li>抬到胯两边有劲就停，换另一边</li></ul>
+      <div class="meta"><span class="chip time">⏱ 左右各 12 下 × 2 轮</span><span class="chip ok">✔ 屁股侧面发酸就算对</span><span class="chip stop">✖ 身子往一边歪，就抬低点</span></div>
+    </div>
+
+    <div class="act mom">
+      <div class="title">⑥ 扶墙拉小腿 + 举胳膊够房顶</div>
+      <div class="fig"><svg class="sfig" width="180" height="180" viewBox="0 0 180 180" role="img" aria-label="举手伸展"><g class="momc"><line class="line ground" x1="50" y1="156" x2="130" y2="156"/><circle class="head" cx="90" cy="36" r="16"/><line class="line" x1="90" y1="52" x2="90" y2="118"/><line class="line" x1="90" y1="70" x2="58" y2="44"><animateTransform attributeName="transform" type="rotate" values="0 90 70;-20 90 70;0 90 70" dur="2.4s" repeatCount="indefinite"/></line><line class="line" x1="90" y1="70" x2="122" y2="44"><animateTransform attributeName="transform" type="rotate" values="0 90 70;20 90 70;0 90 70" dur="2.4s" repeatCount="indefinite"/></line><line class="line" x1="90" y1="118" x2="72" y2="158"/><line class="line" x1="90" y1="118" x2="108" y2="158"/></g></svg><div class="cap">▲ 胳膊慢慢举过头顶，像够着房顶</div></div>
+      <ul class="steps"><li>手扶墙，一条腿往后蹬直，停 30 下，换腿</li><li>站直，两只胳膊慢慢举过头顶</li><li>举到最高吸口气，再慢慢放下来</li></ul>
+      <div class="meta"><span class="chip time">⏱ 两条腿各拉 1 次，举胳膊 5 次</span><span class="chip ok">✔ 小腿后边被拉开就算对</span><span class="chip stop">✖ 拉得疼，就收回来一点</span></div>
+    </div>
+
+    <div class="act mom">
+      <div class="title">⑦ 背靠墙，像坐张没有的凳子</div>
+      <div class="fig"><svg class="sfig" width="220" height="200" viewBox="0 0 220 200" role="img" aria-label="靠墙静蹲简化版"><g class="momc"><rect class="line prop" x="4" y="10" width="14" height="180" rx="4" fill="none"/><g><animateTransform attributeName="transform" type="translate" values="0 0;0 -8;0 0" dur="2.4s" repeatCount="indefinite"/><circle class="head" cx="120" cy="40" r="16"/><line class="line" x1="120" y1="56" x2="120" y2="116"/><line class="line" x1="120" y1="72" x2="94" y2="96"/><line class="line" x1="120" y1="72" x2="146" y2="96"/><line class="line" x1="120" y1="116" x2="98" y2="150"/><line class="line" x1="120" y1="116" x2="142" y2="150"/></g></g></svg><div class="cap">▲ 背贴墙，只蹲一点点，不是蹲到底</div></div>
+      <ul class="steps"><li>背和后脑勺贴着墙站，脚往前迈一小步</li><li>背贴着墙，往下滑一点点，像要坐张看不见的凳子</li><li>停几秒，再慢慢滑回来站直</li></ul>
+      <div class="meta"><span class="chip time">⏱ 做 8 下 × 2 轮</span><span class="chip ok">✔ 大腿前面发热，膝盖不疼就算对</span><span class="chip stop">✖ 膝盖疼，就蹲得再浅一点</span></div>
+    </div>
+
+    <div class="act mom">
+      <div class="title">⑧ 转体摸肩</div>
+      <div class="fig"><svg class="sfig" width="180" height="180" viewBox="0 0 180 180" role="img" aria-label="转体摸肩"><g class="momc"><g><animateTransform attributeName="transform" type="rotate" values="0 90 118;14 90 118;0 90 118;-14 90 118;0 90 118" dur="2.4s" repeatCount="indefinite"/><circle class="head" cx="90" cy="36" r="15"/><line class="line" x1="90" y1="52" x2="90" y2="118"/><line class="line" x1="90" y1="56" x2="62" y2="70"/><line class="line" x1="62" y1="70" x2="90" y2="62"/><line class="line" x1="90" y1="56" x2="118" y2="70"/><line class="line" x1="118" y1="70" x2="90" y2="62"/></g><line class="line" x1="90" y1="118" x2="76" y2="158"/><line class="line" x1="90" y1="118" x2="104" y2="158"/></g></svg><div class="cap">▲ 两手搭肩、手肘朝外，上身慢慢左右转</div></div>
+      <ul class="steps"><li>站直，两脚分开跟肩一样宽</li><li>两只手搭在自己肩膀上，胳膊肘朝外</li><li>身子慢慢往右转，再慢慢转到左边，脚别动</li></ul>
+      <div class="meta"><span class="chip time">⏱ 左右算 1 下，做 10 下，慢慢来</span><span class="chip ok">✔ 腰和身子被轻轻拧开就算对</span><span class="chip stop">✖ 别甩、别拧太快，头晕就停</span></div>
+    </div>
+  </section></div>
+</div>
+
+<!-- 妈妈方案2 -->
+<div id="view-mom-2" class="view">
+  <header><h1>家务间隙顺手做</h1></header>
+  <div class="back-bar"><button class="back-btn" type="button" onclick="show('list-mom')">← 返回计划列表</button></div>
+  <div class="wrap"><section class="col mom">
+    <h2>家务间隙顺手做</h2>
+    <p class="note">⏱ 3 段 × 5 分钟 · 效果：不占时间、养成习惯 · 天天顺手做 · 绑在家务里</p>
+
+    <div class="act mom">
+      <div class="title">① 踮脚尖（洗碗、择菜的时候）</div>
+      <div class="fig"><svg class="sfig" width="180" height="180" viewBox="0 0 180 180" role="img" aria-label="踮脚尖"><g class="momc"><rect class="line prop" x="8" y="20" width="12" height="140" rx="4" fill="none"/><line class="line ground" x1="40" y1="156" x2="160" y2="156"/><g><animateTransform attributeName="transform" type="translate" values="0 0;0 -12;0 0" dur="2.4s" repeatCount="indefinite"/><circle class="head" cx="110" cy="40" r="15"/><line class="line" x1="110" y1="56" x2="110" y2="116"/><line class="line" x1="110" y1="68" x2="30" y2="92"/><line class="line" x1="110" y1="68" x2="132" y2="92"/><line class="line" x1="110" y1="116" x2="102" y2="150"/><line class="line" x1="110" y1="116" x2="118" y2="150"/><line class="line" x1="102" y1="150" x2="120" y2="152"/><line class="line" x1="118" y1="150" x2="134" y2="152"/></g></g></svg><div class="cap">▲ 手扶水池边，脚后跟抬起再落下</div></div>
+      <ul class="steps"><li>手扶水池边或灶台边</li><li>脚后跟慢慢抬起来，停一下</li><li>再慢慢落下，别砸</li></ul>
+      <div class="meta"><span class="chip time">⏱ 做 15 下</span><span class="chip ok">✔ 小腿肚子发酸就算对</span><span class="chip stop">✖ 站不稳，就扶牢停下</span></div>
+    </div>
+
+    <div class="act mom">
+      <div class="title">② 甩开胳膊原地踏步（等水烧开的时候）</div>
+      <div class="fig"><svg class="sfig" width="180" height="180" viewBox="0 0 180 180" role="img" aria-label="原地踏步"><g class="momc"><line class="line ground" x1="50" y1="156" x2="130" y2="156"/><circle class="head" cx="90" cy="36" r="16"/><line class="line" x1="90" y1="52" x2="90" y2="112"/><line class="line" x1="90" y1="70" x2="64" y2="94"><animateTransform attributeName="transform" type="rotate" values="0 90 70;30 90 70;0 90 70" dur="1.4s" repeatCount="indefinite"/></line><line class="line" x1="90" y1="70" x2="116" y2="94"><animateTransform attributeName="transform" type="rotate" values="0 90 70;-30 90 70;0 90 70" dur="1.4s" repeatCount="indefinite"/></line><line class="line" x1="90" y1="112" x2="70" y2="152"><animateTransform attributeName="transform" type="rotate" values="0 90 112;26 90 112;0 90 112" dur="1.4s" repeatCount="indefinite"/></line><line class="line" x1="90" y1="112" x2="110" y2="152"/></g></svg><div class="cap">▲ 原地踏，胳膊甩开</div></div>
+      <ul class="steps"><li>原地抬腿踏步</li><li>胳膊跟着甩开</li><li>脚落地要轻</li></ul>
+      <div class="meta"><span class="chip time">⏱ 踏到水烧开就行</span><span class="chip ok">✔ 身上发热、还能搭话就算对</span><span class="chip stop">✖ 喘不上来，就停下来</span></div>
+    </div>
+
+    <div class="act mom">
+      <div class="title">③ 扶着椅子，腿往后抬（晾完衣服的时候）</div>
+      <div class="fig"><svg class="sfig" width="200" height="180" viewBox="0 0 200 180" role="img" aria-label="站立后抬腿"><g class="momc"><rect class="line prop" x="8" y="20" width="12" height="140" rx="4" fill="none"/><line class="line ground" x1="30" y1="160" x2="190" y2="160"/><circle class="head" cx="150" cy="38" r="15"/><line class="line" x1="150" y1="54" x2="150" y2="118"/><line class="line" x1="150" y1="66" x2="34" y2="92"/><line class="line" x1="150" y1="66" x2="42" y2="104"/><line class="line" x1="150" y1="118" x2="142" y2="158"/><line class="line" x1="150" y1="118" x2="178" y2="140"><animateTransform attributeName="transform" type="rotate" values="0 150 118;22 150 118;0 150 118" dur="2.4s" repeatCount="indefinite"/></line></g></svg><div class="cap">▲ 两手扶椅背，腿往后抬</div></div>
+      <ul class="steps"><li>两手扶椅背站直</li><li>右腿伸直往后抬，数 2 下</li><li>换另一边</li></ul>
+      <div class="meta"><span class="chip time">⏱ 左右各 10 下</span><span class="chip ok">✔ 屁股上发酸就算对</span><span class="chip stop">✖ 后腰塌，就抬低一点</span></div>
+    </div>
+
+    <div class="act mom">
+      <div class="title">④ 转体摸肩（看电视的时候）</div>
+      <div class="fig"><svg class="sfig" width="180" height="180" viewBox="0 0 180 180" role="img" aria-label="转体摸肩"><g class="momc"><g><animateTransform attributeName="transform" type="rotate" values="0 90 118;14 90 118;0 90 118;-14 90 118;0 90 118" dur="2.4s" repeatCount="indefinite"/><circle class="head" cx="90" cy="36" r="15"/><line class="line" x1="90" y1="52" x2="90" y2="118"/><line class="line" x1="90" y1="56" x2="62" y2="70"/><line class="line" x1="62" y1="70" x2="90" y2="62"/><line class="line" x1="90" y1="56" x2="118" y2="70"/><line class="line" x1="118" y1="70" x2="90" y2="62"/></g><line class="line" x1="90" y1="118" x2="76" y2="158"/><line class="line" x1="90" y1="118" x2="104" y2="158"/></g></svg><div class="cap">▲ 两手搭肩、手肘朝外，上身慢慢左右转</div></div>
+      <ul class="steps"><li>站直，手搭在肩膀上</li><li>身子慢慢往右转，再慢慢转到左边</li><li>脚别动</li></ul>
+      <div class="meta"><span class="chip time">⏱ 左右算 1 下，做 10 下</span><span class="chip ok">✔ 腰被轻轻拧开就算对</span><span class="chip stop">✖ 别甩、别拧太快</span></div>
+    </div>
+  </section></div>
+</div>
+
+<!-- 妈妈方案3 -->
+<div id="view-mom-3" class="view">
+  <header><h1>睡前床上放松</h1></header>
+  <div class="back-bar"><button class="back-btn" type="button" onclick="show('list-mom')">← 返回计划列表</button></div>
+  <div class="wrap"><section class="col mom">
+    <h2>睡前床上放松</h2>
+    <p class="note">⏱ 10 分钟 · 效果：放松腰背助眠 · 天天睡前 · 在床上跪着或坐着做</p>
+
+    <div class="act mom">
+      <div class="title">① 像猫一样弓背、再塌腰</div>
+      <div class="fig"><svg class="sfig" width="200" height="170" viewBox="0 0 200 170" role="img" aria-label="猫式弓背塌腰"><g class="momc"><line class="line ground" x1="20" y1="148" x2="180" y2="148"/><g><animateTransform attributeName="transform" type="rotate" values="0 40 62;-18 40 62;0 40 62;18 40 62;0 40 62" dur="2.4s" repeatCount="indefinite"/><circle class="head" cx="40" cy="62" r="15"/></g><line class="line" x1="55" y1="62" x2="100" y2="62"><animateTransform attributeName="transform" type="rotate" values="0 55 62;18 55 62;0 55 62;-14 55 62;0 55 62" dur="2.4s" repeatCount="indefinite"/></line><line class="line" x1="100" y1="62" x2="145" y2="62"><animateTransform attributeName="transform" type="rotate" values="0 145 62;18 145 62;0 145 62;-14 145 62;0 145 62" dur="2.4s" repeatCount="indefinite"/></line><line class="line" x1="60" y1="62" x2="58" y2="145"/><line class="line" x1="140" y1="62" x2="128" y2="108"/><line class="line" x1="128" y1="108" x2="132" y2="145"/></g></svg><div class="cap">▲ 手撑地、膝盖跪地，弓背低头再塌腰抬头</div></div>
+      <ul class="steps"><li>跪在床上，两手撑住</li><li>慢慢把背弓起来，再慢慢塌下去</li><li>来回慢慢做，别着急</li></ul>
+      <div class="meta"><span class="chip time">⏱ 做 10 下，慢慢来</span><span class="chip ok">✔ 后腰发热不刺痛就算对</span><span class="chip stop">✖ 腰里"扎"一下，就只做弓背</span></div>
+    </div>
+
+    <div class="act mom">
+      <div class="title">② 跪着往前趴，屁股坐脚跟上</div>
+      <div class="fig"><svg class="sfig" width="200" height="160" viewBox="0 0 200 160" role="img" aria-label="跪趴放松"><g class="momc"><line class="line ground" x1="20" y1="132" x2="180" y2="132"/><circle class="head" cx="58" cy="96" r="13"/><line class="line" x1="72" y1="94" x2="120" y2="66"/><line class="line" x1="72" y1="94" x2="24" y2="100"/><line class="line" x1="120" y1="66" x2="128" y2="100"/><line class="line" x1="128" y1="100" x2="128" y2="130"/></g></svg><div class="cap">▲ 屁股坐脚跟上，身子往前趴、手往前够</div></div>
+      <ul class="steps"><li>跪好，屁股坐脚跟上</li><li>身子往前趴，手往前够，额头挨着床</li><li>停着，慢慢喘气</li></ul>
+      <div class="meta"><span class="chip time">⏱ 停住默数 30 下 × 2 轮</span><span class="chip ok">✔ 后腰被轻轻拉开就算对</span><span class="chip stop">✖ 膝盖压得疼，就垫条毛巾</span></div>
+    </div>
+
+    <div class="act mom">
+      <div class="title">③ 举胳膊够房顶 + 慢慢喘气</div>
+      <div class="fig"><svg class="sfig" width="180" height="180" viewBox="0 0 180 180" role="img" aria-label="举手伸展"><g class="momc"><line class="line ground" x1="50" y1="156" x2="130" y2="156"/><circle class="head" cx="90" cy="36" r="16"/><line class="line" x1="90" y1="52" x2="90" y2="118"/><line class="line" x1="90" y1="70" x2="58" y2="44"><animateTransform attributeName="transform" type="rotate" values="0 90 70;-20 90 70;0 90 70" dur="2.4s" repeatCount="indefinite"/></line><line class="line" x1="90" y1="70" x2="122" y2="44"><animateTransform attributeName="transform" type="rotate" values="0 90 70;20 90 70;0 90 70" dur="2.4s" repeatCount="indefinite"/></line><line class="line" x1="90" y1="118" x2="72" y2="158"/><line class="line" x1="90" y1="118" x2="108" y2="158"/></g></svg><div class="cap">▲ 胳膊慢慢举过头顶，像够着房顶</div></div>
+      <ul class="steps"><li>坐在床边或站直，两只胳膊慢慢举过头顶</li><li>举到最高吸口气，再慢慢放下来</li><li>做完了，好睡觉</li></ul>
+      <div class="meta"><span class="chip time">⏱ 举胳膊 5 次</span><span class="chip ok">✔ 肩膀松了、人稳了就算对</span><span class="chip stop">✖ 头晕，就坐下歇会儿</span></div>
+    </div>
+  </section></div>
+</div>
+
+<div class="bottom">
+  <button id="checkin" class="checkin-btn" type="button">✅ 今日打卡</button>
+  <div id="cheer" role="status" aria-live="polite"></div>
+</div>
+
+<footer>
+  <div class="disc">⚠️ 大模型建议仅供参考，运动时如有不适请立即停止。</div>
+</footer>
+
+<script>
+  function show(name){
+    var ids=['home','list-dad','list-mom','dad-1','dad-2','dad-3','mom-1','mom-2','mom-3'];
+    for(var i=0;i<ids.length;i++){
+      var v=document.getElementById('view-'+ids[i]);
+      if(v){ v.classList.toggle('active', ids[i]===name); }
+    }
+    window.scrollTo(0,0);
+  }
+  (function(){
+    var btn=document.getElementById('checkin');
+    var cheer=document.getElementById('cheer');
+    var done=false;
+    btn.addEventListener('click',function(){
+      if(!done){ done=true; btn.textContent='✅ 已完成'; btn.classList.add('done'); cheer.textContent='🎉 今日已完成！加油！'; }
+    });
+  })();
+
+  var _voices=[];
+  function _loadVoices(){ if(window.speechSynthesis){ _voices=window.speechSynthesis.getVoices(); } }
+  if(window.speechSynthesis){ _loadVoices(); window.speechSynthesis.onvoiceschanged=_loadVoices; }
+  function _pickZh(){ for(var i=0;i<_voices.length;i++){ var s=(_voices[i].lang||'')+' '+( _voices[i].name||''); if(/zh|cmn|chinese|中文/i.test(s)) return _voices[i]; } return null; }
+  function _speak(text){
+    if(!('speechSynthesis' in window)){ alert('这个手机或浏览器不支持语音朗读，看文字照着做就行。'); return; }
+    window.speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(text);
+    u.lang='zh-CN'; u.rate=0.82; u.pitch=1;
+    var zh=_pickZh(); if(zh) u.voice=zh;
+    window.speechSynthesis.speak(u);
+  }
+  function _strip(s){ return (s||'').replace(/[⏱✔✖▶🔊]/g,'').replace(/\s+/g,' ').trim(); }
+  function _speakAction(act){
+    var title=act.querySelector('.title'); var steps=act.querySelectorAll('.steps li');
+    var t=title?title.textContent.trim():'';
+    var arr=[]; for(var i=0;i<steps.length;i++){ arr.push(steps[i].textContent.trim()); }
+    var time=act.querySelector('.chip.time'); var ok=act.querySelector('.chip.ok'); var stop=act.querySelector('.chip.stop');
+    var parts=[t];
+    if(arr.length) parts.push('怎么做：'+arr.join('，'));
+    if(time) parts.push('做几个：'+_strip(time.textContent));
+    if(ok) parts.push('做对了的感觉：'+_strip(ok.textContent));
+    if(stop) parts.push('注意：'+_strip(stop.textContent));
+    _speak(parts.join('。')+'。');
+  }
+  (function(){
+    var acts=document.querySelectorAll('.act');
+    for(var k=0;k<acts.length;k++){
+      (function(act){
+        var btn=document.createElement('button');
+        btn.type='button'; btn.className='speak-btn'; btn.textContent='🔊 听这个动作';
+        btn.addEventListener('click',function(){ _speakAction(act); });
+        var title=act.querySelector('.title'); if(title){ title.insertAdjacentElement('afterend', btn); }
+      })(acts[k]);
+    }
+  })();
+
+  (function(){
+    var NS='http://www.w3.org/2000/svg';
+    var heads=document.querySelectorAll('.sfig .head');
+    for(var h=0;h<heads.length;h++){
+      var head=heads[h];
+      if(head.querySelector('animateTransform')) continue;
+      var cx=parseFloat(head.getAttribute('cx')); var cy=parseFloat(head.getAttribute('cy')); var r=parseFloat(head.getAttribute('r'))||16;
+      if(isNaN(cx)||isNaN(cy)) continue;
+      var g=head.parentNode;
+      var e1=document.createElementNS(NS,'circle');
+      e1.setAttribute('cx',(cx-r*0.35).toFixed(1)); e1.setAttribute('cy',(cy-r*0.05).toFixed(1)); e1.setAttribute('r',(r*0.15).toFixed(1)); e1.setAttribute('fill','#fff');
+      var e2=e1.cloneNode(); e2.setAttribute('cx',(cx+r*0.35).toFixed(1));
+      g.appendChild(e1); g.appendChild(e2);
+      var sm=document.createElementNS(NS,'path');
+      var sx=(cx-r*0.3).toFixed(1), ex=(cx+r*0.3).toFixed(1), sy=(cy+r*0.25).toFixed(1), qy=(cy+r*0.55).toFixed(1);
+      sm.setAttribute('d','M'+sx+' '+sy+' Q'+cx+' '+qy+' '+ex+' '+sy);
+      sm.setAttribute('fill','none'); sm.setAttribute('stroke','#fff'); sm.setAttribute('stroke-width',(Math.max(1.5,r*0.12)).toFixed(1)); sm.setAttribute('stroke-linecap','round');
+      g.appendChild(sm);
+    }
+  })();
+</script>
+</body>
+</html>
